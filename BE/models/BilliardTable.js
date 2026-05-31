@@ -12,7 +12,7 @@ const BilliardTable = sequelize.define('BilliardTable', {
     allowNull: false
   },
   status: {
-    type: DataTypes.ENUM('Trống', 'Đang sử dụng'),
+    type: DataTypes.ENUM('Trống', 'Đang sử dụng', 'Bảo trì'),
     defaultValue: 'Trống'
   },
   price_per_hour: {

@@ -5,7 +5,8 @@ import { useAuth } from '@/lib/authContext';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { InvoiceItem } from '@/lib/types';
 
 interface InvoiceModalProps {
@@ -19,6 +20,11 @@ export default function InvoiceModal({ onClose }: InvoiceModalProps) {
   const [items, setItems] = useState<InvoiceItem[]>([]);
   const [selectedService, setSelectedService] = useState<string>('');
   const [quantity, setQuantity] = useState(1);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const inUseTables = tables.filter((t) => t.status === 'in-use');
   const session = selectedTable ? sessions.find((s) => s.tableId === selectedTable && !s.endTime) : null;
@@ -36,6 +42,7 @@ export default function InvoiceModal({ onClose }: InvoiceModalProps) {
       quantity,
       unitPrice: service.price,
       totalPrice: service.price * quantity,
+      serviceId: service.id,
     };
 
     setItems([...items, newItem]);
@@ -52,15 +59,16 @@ export default function InvoiceModal({ onClose }: InvoiceModalProps) {
     const now = new Date();
     const start = new Date(session.startTime);
     const diffMs = now.getTime() - start.getTime();
-    const hours = Math.ceil(diffMs / (1000 * 60 * 60));
+    const diffMins = Math.floor(diffMs / 60000);
+    const tableFee = Math.floor((diffMins / 60) * table.pricePerHour);
 
     const tableItem: InvoiceItem = {
       id: `item-table-${Date.now()}`,
       type: 'table',
-      name: `${table.name} - ${hours} giờ`,
+      name: `${table.name} - Tiền giờ`,
       quantity: 1,
-      unitPrice: table.pricePerHour,
-      totalPrice: hours * table.pricePerHour,
+      unitPrice: tableFee,
+      totalPrice: tableFee,
     };
 
     // Remove old table fee if exists
@@ -82,15 +90,16 @@ export default function InvoiceModal({ onClose }: InvoiceModalProps) {
         const now = new Date();
         const start = new Date(session.startTime);
         const diffMs = now.getTime() - start.getTime();
-        const hours = Math.ceil(diffMs / (1000 * 60 * 60));
+        const diffMins = Math.floor(diffMs / 60000);
+        const tableFee = Math.floor((diffMins / 60) * table.pricePerHour);
 
         const tableItem: InvoiceItem = {
           id: `item-table-${Date.now()}`,
           type: 'table',
-          name: `${table.name} - ${hours} giờ`,
+          name: `${table.name} - Tiền giờ`,
           quantity: 1,
-          unitPrice: table.pricePerHour,
-          totalPrice: hours * table.pricePerHour,
+          unitPrice: tableFee,
+          totalPrice: tableFee,
         };
 
         items.push(tableItem);
@@ -108,8 +117,10 @@ export default function InvoiceModal({ onClose }: InvoiceModalProps) {
 
   const totalAmount = items.reduce((sum, item) => sum + item.totalPrice, 0);
 
-  return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+  if (!mounted) return null;
+
+  return createPortal(
+    <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center z-[100] p-4">
       <Card className="bg-white rounded-lg shadow-2xl max-w-2xl w-full max-h-screen overflow-y-auto">
         <div className="p-6">
           <div className="flex justify-between items-center mb-6">
@@ -264,29 +275,30 @@ export default function InvoiceModal({ onClose }: InvoiceModalProps) {
                     </p>
                   </div>
                 </div>
-
-                {/* Action Buttons */}
-                <div className="flex gap-3">
-                  <Button
-                    onClick={handleCreateInvoice}
-                    disabled={items.length === 0}
-                    className="flex-1 bg-green-600 hover:bg-green-700 text-white font-semibold"
-                  >
-                    Tạo hóa đơn
-                  </Button>
-                  <Button
-                    onClick={onClose}
-                    variant="outline"
-                    className="flex-1"
-                  >
-                    Hủy
-                  </Button>
-                </div>
               </>
             )}
+
+            {/* Action Buttons */}
+            <div className="flex gap-3 mt-6 pt-6 border-t border-gray-100">
+              <Button
+                onClick={handleCreateInvoice}
+                disabled={items.length === 0 || !selectedTable}
+                className="flex-1 bg-green-600 hover:bg-green-700 text-white font-semibold"
+              >
+                Tạo hóa đơn
+              </Button>
+              <Button
+                onClick={onClose}
+                variant="outline"
+                className="flex-1"
+              >
+                Hủy
+              </Button>
+            </div>
           </div>
         </div>
       </Card>
-    </div>
+    </div>,
+    document.body
   );
 }

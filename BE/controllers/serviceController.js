@@ -1,4 +1,5 @@
 const { Service } = require('../models');
+const { emitEvent } = require('../socket');
 
 // Lấy danh sách dịch vụ
 const getServices = async (req, res) => {
@@ -19,6 +20,7 @@ const createService = async (req, res) => {
     const newService = await Service.create({
       name, category, price, image_url
     });
+    emitEvent('dataChange');
     res.status(201).json(newService);
   } catch (error) {
     res.status(500).json({ message: 'Lỗi server' });
@@ -40,6 +42,7 @@ const updateService = async (req, res) => {
     service.image_url = image_url || service.image_url;
 
     await service.save();
+    emitEvent('dataChange');
     res.status(200).json(service);
   } catch (error) {
     res.status(500).json({ message: 'Lỗi server' });
@@ -54,6 +57,7 @@ const deleteService = async (req, res) => {
     if (!service) return res.status(404).json({ message: 'Không tìm thấy dịch vụ' });
 
     await service.destroy();
+    emitEvent('dataChange');
     res.status(200).json({ message: 'Xóa dịch vụ thành công' });
   } catch (error) {
     res.status(500).json({ message: 'Lỗi server' });

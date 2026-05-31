@@ -36,8 +36,6 @@ export default function DashboardPage() {
     };
 
     updateStats();
-    const interval = setInterval(updateStats, 3000);
-    return () => clearInterval(interval);
   }, [getTodayRevenue, getTablesInUse, getTodayInvoices, tables]);
 
   const statCards = [

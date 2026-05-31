@@ -85,8 +85,8 @@ CREATE TABLE IF NOT EXISTS `InvoiceDetails` (
 -- Admin: admin / 123456
 -- Employee: nv1 / 123456
 INSERT INTO `Users` (`id`, `username`, `password`, `fullname`, `role`, `createdAt`, `updatedAt`) VALUES
-(1, 'admin', '$2a$10$E9sA2/x3V1BkVhF/jC4YGuX6ZJ61a29B56I5I3YvB098xG6.b3jE2', 'Quản trị viên', 'admin', NOW(), NOW()),
-(2, 'nv1', '$2a$10$E9sA2/x3V1BkVhF/jC4YGuX6ZJ61a29B56I5I3YvB098xG6.b3jE2', 'Nhân viên 1', 'employee', NOW(), NOW());
+(1, 'admin', '$2b$10$QpudyHIjO9xv8.GSU/0Cc.jpGqi1EBA/Gynn7BlVSdb1Qjr/.sh3W', 'Quản trị viên', 'admin', NOW(), NOW()),
+(2, 'nv1', '$2b$10$QpudyHIjO9xv8.GSU/0Cc.jpGqi1EBA/Gynn7BlVSdb1Qjr/.sh3W', 'Nhân viên 1', 'employee', NOW(), NOW());
 
 -- Insert Dummy Tables
 INSERT INTO `BilliardTables` (`id`, `name`, `status`, `price_per_hour`, `createdAt`, `updatedAt`) VALUES

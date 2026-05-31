@@ -12,7 +12,7 @@ const Service = sequelize.define('Service', {
     allowNull: false
   },
   category: {
-    type: DataTypes.ENUM('Nước', 'Đồ ăn', 'Combo'),
+    type: DataTypes.STRING,
     allowNull: false
   },
   price: {

@@ -6,11 +6,10 @@ import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
-import { mockUsers } from '@/lib/mockData';
 import { CheckCircle2 } from 'lucide-react';
 
 export default function LoginForm() {
-  const [email, setEmail] = useState('admin@billiards.com');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -26,7 +25,7 @@ export default function LoginForm() {
       await login(email, password);
       router.push('/dashboard');
     } catch (err) {
-      setError('Email không tồn tại. Vui lòng thử lại.');
+      setError('Tài khoản hoặc mật khẩu không đúng. Vui lòng thử lại.');
     } finally {
       setIsLoading(false);
     }
@@ -80,13 +79,13 @@ export default function LoginForm() {
             <form onSubmit={handleSubmit} className="space-y-5">
               <div>
                 <label className="block text-sm font-semibold text-foreground mb-2">
-                  Email
+                  Tên đăng nhập
                 </label>
                 <Input
-                  type="email"
+                  type="text"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="admin@billiards.com"
+                  placeholder="Nhập tên đăng nhập"
                   disabled={isLoading}
                   required
                   className="h-11 border-border"
@@ -101,7 +100,7 @@ export default function LoginForm() {
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Nhập mật khẩu bất kỳ"
+                  placeholder="Nhập mật khẩu"
                   disabled={isLoading}
                   className="h-11 border-border"
                 />
@@ -122,29 +121,7 @@ export default function LoginForm() {
               </Button>
             </form>
 
-            <div className="relative">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-border"></div>
-              </div>
-              <div className="relative flex justify-center text-xs uppercase">
-                <span className="px-2 bg-white text-muted-foreground font-medium">Tài khoản Demo</span>
-              </div>
-            </div>
 
-            <div className="space-y-2 max-h-48 overflow-y-auto">
-              {mockUsers.map((user) => (
-                <button
-                  key={user.id}
-                  type="button"
-                  onClick={() => setEmail(user.email)}
-                  className="w-full text-left bg-muted/50 hover:bg-muted border border-border p-3 rounded-lg transition-colors"
-                >
-                  <p className="font-semibold text-foreground text-sm">{user.name}</p>
-                  <p className="text-muted-foreground text-xs">{user.email}</p>
-                  <p className="text-muted-foreground text-xs">Vai trò: {user.role === 'admin' ? 'Admin' : 'Nhân viên'}</p>
-                </button>
-              ))}
-            </div>
           </div>
         </div>
       </div>

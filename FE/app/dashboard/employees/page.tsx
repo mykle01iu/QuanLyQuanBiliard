@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { useState } from 'react';
 import { User, UserRole } from '@/lib/types';
 import { useRouter } from 'next/navigation';
-import { Plus, Pencil, Trash2, Shield, UserCircle, X, AlertCircle, Users, Mail, Phone } from 'lucide-react';
+import { Plus, Pencil, Trash2, Shield, UserCircle, X, AlertCircle, Users, Mail, Phone, KeyRound } from 'lucide-react';
 
 export default function EmployeesPage() {
   const { users, addUser, updateUser, deleteUser } = useData();
@@ -23,6 +23,7 @@ export default function EmployeesPage() {
     phone: '',
     role: 'staff' as UserRole,
     salary: 50000,
+    password: '',
   });
   const [editingId, setEditingId] = useState<string | null>(null);
 
@@ -38,25 +39,29 @@ export default function EmployeesPage() {
     );
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (editingId) {
-      updateUser({
-        ...formData,
-        id: editingId,
-        createdAt: users.find((u) => u.id === editingId)?.createdAt || new Date(),
-      });
-      setEditingId(null);
-    } else {
-      const newUser: User = {
-        ...formData,
-        id: `user-${Date.now()}`,
-        createdAt: new Date(),
-      };
-      addUser(newUser);
+    try {
+      if (editingId) {
+        await updateUser({
+          ...formData,
+          id: editingId,
+          createdAt: users.find((u) => u.id === editingId)?.createdAt || new Date(),
+        });
+        setEditingId(null);
+      } else {
+        const newUser: User = {
+          ...formData,
+          id: `user-${Date.now()}`,
+          createdAt: new Date(),
+        };
+        await addUser(newUser);
+      }
+      setFormData({ id: '', name: '', email: '', phone: '', role: 'staff', salary: 50000, password: '' });
+      setShowForm(false);
+    } catch (error) {
+      // Error is already alerted in dataContext
     }
-    setFormData({ id: '', name: '', email: '', phone: '', role: 'staff', salary: 50000 });
-    setShowForm(false);
   };
 
   const handleEdit = (u: User) => {
@@ -68,6 +73,17 @@ export default function EmployeesPage() {
   const handleDelete = (id: string) => {
     if (confirm('Xác nhận xóa nhân viên này?')) {
       deleteUser(id);
+    }
+  };
+
+  const handleResetPassword = async (u: User) => {
+    if (confirm(`Xác nhận đặt lại mật khẩu cho ${u.name}? Mật khẩu mới sẽ giống với Email của tài khoản.`)) {
+      try {
+        await updateUser({ ...u, password: u.email });
+        alert(`Đã đặt lại mật khẩu thành công!\nMật khẩu mới là: ${u.email}`);
+      } catch (err) {
+        // Error already handled
+      }
     }
   };
 
@@ -87,7 +103,7 @@ export default function EmployeesPage() {
             onClick={() => {
               setShowForm(true);
               setEditingId(null);
-              setFormData({ id: '', name: '', email: '', phone: '', role: 'staff', salary: 50000 });
+              setFormData({ id: '', name: '', email: '', phone: '', role: 'staff', salary: 50000, password: '' });
             }}
             className="bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl h-10 px-5 font-semibold shadow-sm"
           >
@@ -119,7 +135,7 @@ export default function EmployeesPage() {
               </div>
               <div className="space-y-1.5">
                 <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Số điện thoại</label>
-                <Input type="tel" value={formData.phone} onChange={(e) => setFormData({ ...formData, phone: e.target.value })} placeholder="0912345678" className="h-11 rounded-xl bg-slate-50 border-slate-200 focus:bg-white" required />
+                <Input type="tel" value={formData.phone} onChange={(e) => setFormData({ ...formData, phone: e.target.value.replace(/\D/g, '') })} pattern="[0-9]{10,11}" maxLength={11} title="Số điện thoại phải chứa 10 hoặc 11 chữ số" placeholder="0912345678" className="h-11 rounded-xl bg-slate-50 border-slate-200 focus:bg-white" required />
               </div>
               <div className="space-y-1.5">
                 <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Lương (VND/giờ)</label>
@@ -136,6 +152,12 @@ export default function EmployeesPage() {
                   <option value="admin">Admin</option>
                 </select>
               </div>
+              {!editingId && (
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Mật khẩu</label>
+                  <Input type="text" value={formData.password} onChange={(e) => setFormData({ ...formData, password: e.target.value })} placeholder="Nhập mật khẩu" className="h-11 rounded-xl bg-slate-50 border-slate-200 focus:bg-white" required />
+                </div>
+              )}
             </div>
             <div className="flex gap-3 pt-2">
               <Button type="submit" className="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold h-11 px-6 rounded-xl shadow-sm">
@@ -188,10 +210,13 @@ export default function EmployeesPage() {
             <div className="pt-3 border-t border-slate-100 flex items-center justify-between">
               <p className="text-sm font-bold text-slate-800">{employee.salary.toLocaleString('vi-VN')}đ<span className="text-slate-400 font-normal">/giờ</span></p>
               <div className="flex gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
-                <button onClick={() => handleEdit(employee)} className="w-8 h-8 rounded-lg bg-slate-100 hover:bg-blue-100 text-slate-500 hover:text-blue-600 flex items-center justify-center transition-colors">
+                <button onClick={() => handleResetPassword(employee)} className="w-8 h-8 rounded-lg bg-slate-100 hover:bg-amber-100 text-slate-500 hover:text-amber-600 flex items-center justify-center transition-colors" title="Đặt lại mật khẩu">
+                  <KeyRound size={14} />
+                </button>
+                <button onClick={() => handleEdit(employee)} className="w-8 h-8 rounded-lg bg-slate-100 hover:bg-blue-100 text-slate-500 hover:text-blue-600 flex items-center justify-center transition-colors" title="Sửa">
                   <Pencil size={14} />
                 </button>
-                <button onClick={() => handleDelete(employee.id)} className="w-8 h-8 rounded-lg bg-slate-100 hover:bg-rose-100 text-slate-500 hover:text-rose-600 flex items-center justify-center transition-colors">
+                <button onClick={() => handleDelete(employee.id)} className="w-8 h-8 rounded-lg bg-slate-100 hover:bg-rose-100 text-slate-500 hover:text-rose-600 flex items-center justify-center transition-colors" title="Xóa">
                   <Trash2 size={14} />
                 </button>
               </div>

@@ -10,7 +10,7 @@ import { Invoice } from '@/lib/types';
 import { Plus, CircleDollarSign, CheckCircle2, Clock, Eye, CreditCard, Receipt } from 'lucide-react';
 
 export default function InvoicesPage() {
-  const { invoices, payInvoice } = useData();
+  const { invoices, payInvoice, tables } = useData();
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [selectedInvoice, setSelectedInvoice] = useState<Invoice | null>(null);
   const [filterStatus, setFilterStatus] = useState<'all' | 'paid' | 'pending'>('all');
@@ -127,7 +127,7 @@ export default function InvoicesPage() {
                       </span>
                     </td>
                     <td className="px-6 py-4 text-sm font-medium text-slate-700">
-                      Bàn {invoice.tableId.split('-')[1]}
+                      {tables.find(t => t.id === invoice.tableId)?.name || `Bàn ${invoice.tableId}`}
                     </td>
                     <td className="px-6 py-4 text-sm text-slate-500">
                       {invoice.items.length} mục

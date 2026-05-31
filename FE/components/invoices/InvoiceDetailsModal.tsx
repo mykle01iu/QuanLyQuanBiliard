@@ -4,6 +4,8 @@ import { Invoice } from '@/lib/types';
 import { useData } from '@/lib/dataContext';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { X, CheckCircle2, Clock, Banknote, CreditCard, Receipt } from 'lucide-react';
 
 interface InvoiceDetailsModalProps {
@@ -15,18 +17,50 @@ export default function InvoiceDetailsModal({
   invoice,
   onClose,
 }: InvoiceDetailsModalProps) {
-  const { payInvoice, users } = useData();
+  const { payInvoice, users, tables } = useData();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const staff = users.find((u) => u.id === invoice.staffId);
+  const tableName = tables.find((t) => t.id === invoice.tableId)?.name || `Bàn ${invoice.tableId}`;
 
   const handlePayment = (method: 'cash' | 'card') => {
     payInvoice(invoice.id, method);
     onClose();
   };
 
-  return (
-    <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-in fade-in duration-200">
-      <Card className="bg-white rounded-3xl shadow-2xl max-w-2xl w-full max-h-[95vh] overflow-y-auto border-0 animate-in zoom-in-95 duration-300">
+  if (!invoice || !mounted) return null;
+
+  return createPortal(
+    <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-[110] p-4 animate-in fade-in duration-200">
+      <style>{`
+        @media print {
+          body * {
+            visibility: hidden;
+          }
+          #invoice-print-area, #invoice-print-area * {
+            visibility: visible;
+          }
+          #invoice-print-area {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: auto;
+            margin: 0;
+            padding: 20px;
+            box-shadow: none;
+            overflow: visible;
+          }
+          .no-print {
+            display: none !important;
+          }
+        }
+      `}</style>
+      <Card id="invoice-print-area" className="bg-white rounded-3xl shadow-2xl max-w-2xl w-full max-h-[calc(100vh-2rem)] overflow-y-auto border-0 animate-in zoom-in-95 duration-300">
         <div className="relative h-24 bg-gradient-to-r from-teal-600 to-emerald-600 rounded-t-3xl overflow-hidden p-6 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="p-3 bg-white/20 rounded-xl backdrop-blur-sm text-white">
@@ -36,12 +70,12 @@ export default function InvoiceDetailsModal({
           </div>
           <button
             onClick={onClose}
-            className="w-8 h-8 bg-white/10 hover:bg-white/20 rounded-full flex items-center justify-center text-white/70 hover:text-white transition-colors"
+            className="w-8 h-8 bg-white/10 hover:bg-white/20 rounded-full flex items-center justify-center text-white/70 hover:text-white transition-colors no-print relative z-10"
           >
             <X size={18} />
           </button>
           
-          <div className="absolute -top-10 -right-10 w-32 h-32 bg-white/10 rounded-full blur-2xl"></div>
+          <div className="absolute -top-10 -right-10 w-32 h-32 bg-white/10 rounded-full blur-2xl pointer-events-none"></div>
         </div>
 
         <div className="p-8">
@@ -51,7 +85,7 @@ export default function InvoiceDetailsModal({
               <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
                 <div>
                   <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Mã hóa đơn</p>
-                  <p className="font-bold text-slate-800">#{invoice.id.split('-')[1] || invoice.id}</p>
+                  <p className="font-bold text-slate-800">#{invoice.id.substring(0, 6).toUpperCase()}</p>
                 </div>
                 <div>
                   <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Ngày tạo</p>
@@ -59,15 +93,15 @@ export default function InvoiceDetailsModal({
                     {new Date(invoice.createdAt).toLocaleDateString('vi-VN')}
                   </p>
                 </div>
-                <div>
-                  <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Thu ngân</p>
-                  <p className="font-bold text-slate-800">{staff?.name || 'N/A'}</p>
-                </div>
+                {staff?.name && (
+                  <div>
+                    <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Thu ngân</p>
+                    <p className="font-bold text-slate-800">{staff.name}</p>
+                  </div>
+                )}
                 <div>
                   <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Bàn</p>
-                  <p className="font-bold text-slate-800">
-                    {invoice.tableId.includes('-') ? `Bàn ${invoice.tableId.split('-')[1]}` : invoice.tableId}
-                  </p>
+                  <p className="font-bold text-slate-800">{tableName}</p>
                 </div>
               </div>
             </div>
@@ -147,7 +181,7 @@ export default function InvoiceDetailsModal({
             </div>
 
             {/* Action Buttons */}
-            <div className="flex gap-4 pt-2">
+            <div className="flex gap-4 pt-2 no-print">
               {invoice.status === 'pending' && (
                 <>
                   <Button
@@ -169,7 +203,7 @@ export default function InvoiceDetailsModal({
                   variant="outline"
                   className="flex-1 h-14 font-bold rounded-xl text-base text-slate-600 border-slate-200 hover:bg-slate-50"
                   onClick={() => {
-                    alert('Chức năng in biên lai đang được phát triển');
+                    window.print();
                   }}
                 >
                   <Receipt size={20} className="mr-2" /> In biên lai
@@ -186,6 +220,7 @@ export default function InvoiceDetailsModal({
           </div>
         </div>
       </Card>
-    </div>
+    </div>,
+    document.body
   );
 }

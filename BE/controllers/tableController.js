@@ -1,4 +1,5 @@
 const { BilliardTable, Invoice } = require('../models');
+const { emitEvent } = require('../socket');
 
 // Lấy danh sách bàn kèm trạng thái
 const getTables = async (req, res) => {
@@ -24,6 +25,7 @@ const createTable = async (req, res) => {
       name,
       price_per_hour
     });
+    emitEvent('dataChange');
     res.status(201).json(newTable);
   } catch (error) {
     res.status(500).json({ message: 'Lỗi server' });
@@ -34,15 +36,17 @@ const createTable = async (req, res) => {
 const updateTable = async (req, res) => {
   try {
     const { id } = req.params;
-    const { name, price_per_hour } = req.body;
+    const { name, price_per_hour, status } = req.body;
 
     const table = await BilliardTable.findByPk(id);
     if (!table) return res.status(404).json({ message: 'Không tìm thấy bàn' });
 
     table.name = name || table.name;
     table.price_per_hour = price_per_hour || table.price_per_hour;
+    if (status) table.status = status;
     await table.save();
 
+    emitEvent('dataChange');
     res.status(200).json(table);
   } catch (error) {
     res.status(500).json({ message: 'Lỗi server' });
@@ -61,6 +65,7 @@ const deleteTable = async (req, res) => {
     }
 
     await table.destroy();
+    emitEvent('dataChange');
     res.status(200).json({ message: 'Xóa bàn thành công' });
   } catch (error) {
     res.status(500).json({ message: 'Lỗi server' });

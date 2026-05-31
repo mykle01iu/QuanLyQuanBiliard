@@ -5,7 +5,7 @@ import { useRouter, usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { LayoutDashboard, Gamepad2, Utensils, Users, ReceiptText, LogOut, ChevronLeft, ChevronRight } from 'lucide-react';
+import { LayoutDashboard, Gamepad2, Utensils, Users, ReceiptText, LogOut, ChevronLeft, ChevronRight, Package } from 'lucide-react';
 
 interface NavItem {
   href: string;
@@ -17,7 +17,8 @@ interface NavItem {
 const navItems: NavItem[] = [
   { href: '/dashboard', label: 'Dashboard', icon: <LayoutDashboard size={20} /> },
   { href: '/dashboard/tables', label: 'Quản lý bàn', icon: <Gamepad2 size={20} /> },
-  { href: '/dashboard/services', label: 'Dịch vụ', icon: <Utensils size={20} />, requiredRole: 'admin' },
+  { href: '/dashboard/categories', label: 'Danh mục', icon: <Package size={20} /> },
+  { href: '/dashboard/services', label: 'Dịch vụ', icon: <Utensils size={20} /> },
   { href: '/dashboard/employees', label: 'Nhân viên', icon: <Users size={20} />, requiredRole: 'admin' },
   { href: '/dashboard/invoices', label: 'Hóa đơn', icon: <ReceiptText size={20} /> },
 ];
@@ -139,7 +140,7 @@ export default function AppLayout({
 
       {/* Main Content */}
       <div className="flex-1 flex flex-col overflow-hidden bg-slate-50/50">
-        <main className="flex-1 overflow-auto p-8">
+        <main id="main-scroll-area" className="flex-1 overflow-auto p-8">
           {children}
         </main>
       </div>

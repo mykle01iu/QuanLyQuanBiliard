@@ -10,6 +10,7 @@ export interface User {
   role: UserRole;
   salary: number; // VND per hour
   createdAt: Date;
+  password?: string;
 }
 
 // Table interface
@@ -30,15 +31,28 @@ export interface TableSession {
   staffId: string;
   price: number;
   paid: boolean;
+  items?: InvoiceItem[];
+}
+
+// Category interface
+export interface Category {
+  id: string;
+  name: string;
+  icon: string;
+  color: string;
+  bg: string;
+  ring: string;
+  createdAt?: Date;
 }
 
 // Service interface
 export interface Service {
   id: string;
   name: string;
-  category: 'drink' | 'food' | 'combo';
+  category: string;
   price: number; // VND
   description?: string;
+  image_url?: string;
 }
 
 // Invoice item
@@ -49,6 +63,7 @@ export interface InvoiceItem {
   quantity: number;
   unitPrice: number;
   totalPrice: number;
+  serviceId?: string;
 }
 
 // Invoice interface

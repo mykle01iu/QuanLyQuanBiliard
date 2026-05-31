@@ -1,5 +1,6 @@
 const bcrypt = require('bcryptjs');
 const { User } = require('../models');
+const { emitEvent } = require('../socket');
 
 // [Admin] Lấy danh sách nhân viên
 const getUsers = async (req, res) => {
@@ -33,6 +34,7 @@ const createUser = async (req, res) => {
       role: role || 'employee'
     });
 
+    emitEvent('dataChange');
     res.status(201).json({ message: 'Tạo tài khoản thành công', user: { id: newUser.id, username: newUser.username } });
   } catch (error) {
     res.status(500).json({ message: 'Lỗi server' });
@@ -54,8 +56,49 @@ const deleteUser = async (req, res) => {
     }
 
     await user.destroy();
+    emitEvent('dataChange');
     res.status(200).json({ message: 'Xóa tài khoản thành công' });
   } catch (error) {
+    res.status(500).json({ message: 'Lỗi server' });
+  }
+};
+
+// [Admin] Cập nhật nhân viên
+const updateUser = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { username, password, fullname, role } = req.body;
+
+    const user = await User.findByPk(id);
+    if (!user) {
+      return res.status(404).json({ message: 'Không tìm thấy tài khoản' });
+    }
+
+    if (username && username !== user.username) {
+      const existingUser = await User.findOne({ where: { username } });
+      if (existingUser) {
+        return res.status(400).json({ message: 'Username đã tồn tại' });
+      }
+      user.username = username;
+    }
+
+    user.fullname = fullname || user.fullname;
+    user.role = role || user.role;
+
+    if (password) {
+      const salt = await bcrypt.genSalt(10);
+      user.password = await bcrypt.hash(password, salt);
+    }
+
+    await user.save();
+
+    emitEvent('dataChange');
+    res.status(200).json({
+      message: 'Cập nhật tài khoản thành công',
+      user: { id: user.id, username: user.username, fullname: user.fullname, role: user.role }
+    });
+  } catch (error) {
+    console.error('updateUser error:', error);
     res.status(500).json({ message: 'Lỗi server' });
   }
 };
@@ -63,5 +106,6 @@ const deleteUser = async (req, res) => {
 module.exports = {
   getUsers,
   createUser,
-  deleteUser
+  deleteUser,
+  updateUser
 };

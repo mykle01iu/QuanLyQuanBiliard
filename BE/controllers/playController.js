@@ -32,6 +32,7 @@ const startPlay = async (req, res) => {
       status: table.status,
       invoice_id: newInvoice.id
     });
+    emitEvent('dataChange');
 
     res.status(200).json({ message: 'Bắt đầu chơi thành công', invoice: newInvoice, table });
   } catch (error) {
@@ -113,6 +114,7 @@ const addServiceToInvoice = async (req, res) => {
 
     // Phát sự kiện để cập nhật UI nếu có máy khác đang mở bill này
     emitEvent('invoiceUpdated', { invoice_id });
+    emitEvent('dataChange');
 
     res.status(200).json({ message: 'Thêm dịch vụ thành công', detail });
   } catch (error) {
@@ -166,6 +168,7 @@ const checkout = async (req, res) => {
       status: table.status,
       invoice_id: null
     });
+    emitEvent('dataChange');
 
     res.status(200).json({ message: 'Thanh toán thành công', invoice });
   } catch (error) {

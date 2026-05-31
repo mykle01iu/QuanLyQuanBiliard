@@ -1,6 +1,7 @@
 const User = require('./User');
 const BilliardTable = require('./BilliardTable');
 const Service = require('./Service');
+const Category = require('./Category');
 const Invoice = require('./Invoice');
 const InvoiceDetail = require('./InvoiceDetail');
 
@@ -23,6 +24,7 @@ InvoiceDetail.belongsTo(Service, { foreignKey: 'service_id' });
 module.exports = {
   User,
   BilliardTable,
+  Category,
   Service,
   Invoice,
   InvoiceDetail

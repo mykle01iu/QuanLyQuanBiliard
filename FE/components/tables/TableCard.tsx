@@ -3,6 +3,7 @@
 import { PoolTable } from '@/lib/types';
 import { Card } from '@/components/ui/card';
 import { useData } from '@/lib/dataContext';
+import { useAuth } from '@/lib/authContext';
 import { Gamepad2, Clock, CheckCircle2, AlertTriangle, Play, Info } from 'lucide-react';
 
 interface TableCardProps {
@@ -11,7 +12,8 @@ interface TableCardProps {
 }
 
 export default function TableCard({ table, onSelect }: TableCardProps) {
-  const { getTableSession } = useData();
+  const { getTableSession, startTableSession } = useData();
+  const { user } = useAuth();
   const session = getTableSession(table.id);
 
   const statusConfig = {
@@ -63,8 +65,8 @@ export default function TableCard({ table, onSelect }: TableCardProps) {
         <div className="absolute -inset-1 bg-gradient-to-r from-emerald-500 to-green-600 rounded-2xl blur opacity-25 group-hover:opacity-50 transition duration-1000 group-hover:duration-200 animate-pulse"></div>
       )}
       <Card
-        onClick={table.status !== 'maintenance' ? onSelect : undefined}
-        className={`relative h-full ${config.bg} border-2 ${config.border} p-5 ${table.status !== 'maintenance' ? 'cursor-pointer hover:-translate-y-1 hover:shadow-xl' : ''} transition-all duration-300 rounded-2xl flex flex-col`}
+        onClick={onSelect}
+        className={`relative h-full ${config.bg} border-2 ${config.border} p-5 cursor-pointer hover:-translate-y-1 hover:shadow-xl transition-all duration-300 rounded-2xl flex flex-col`}
       >
         {/* Decor */}
         {isInUse && (
@@ -101,7 +103,14 @@ export default function TableCard({ table, onSelect }: TableCardProps) {
         </div>
 
         <button 
-          disabled={table.status === 'maintenance'}
+          onClick={(e) => {
+            e.stopPropagation();
+            if (table.status === 'available' && user) {
+              startTableSession(table.id, user.id);
+            } else {
+              onSelect();
+            }
+          }}
           className={`w-full py-3 flex items-center justify-center text-sm font-bold rounded-xl transition-all relative z-10 ${config.btn}`}
         >
           {config.btnIcon}
