@@ -63,17 +63,15 @@ export default function AppLayout({
     <div className="flex h-screen bg-background">
       {/* Sidebar */}
       <div
-        className={`${
-          isSidebarOpen ? 'w-64' : 'w-20'
-        } bg-emerald-900 text-slate-100 transition-all duration-300 flex flex-col shadow-xl relative z-10`}
+        className={`${isSidebarOpen ? 'w-64' : 'w-20'
+          } bg-emerald-900 text-slate-100 transition-all duration-300 flex flex-col shadow-xl relative z-10`}
       >
         <div className="flex h-16 shrink-0 items-center gap-3 px-6 bg-emerald-900/80">
           <div className="w-10 h-10 rounded-full bg-emerald-500/20 flex items-center justify-center p-0.5 overflow-hidden ring-2 ring-emerald-500/50">
             <img src="/logo.jpg" alt="Logo" className="w-full h-full object-cover rounded-full" />
           </div>
           {isSidebarOpen && (
-            <span className="text-xl font-extrabold text-white tracking-wide">Billiards<span className="text-emerald-400">99</span></span>
-          )}
+            <span className="text-xl font-extrabold tracking-wide"><span className="text-emerald-400">99</span><span className="text-white">Billiards</span></span>)}
         </div>
 
         <nav className="flex flex-1 flex-col mt-6 px-4">
@@ -87,8 +85,8 @@ export default function AppLayout({
                     href={item.href}
                     className={`
                       group flex items-center gap-x-3 rounded-xl p-3 text-sm font-semibold leading-6 transition-all duration-200
-                      ${isActive 
-                        ? 'bg-emerald-500/30 text-emerald-300 shadow-sm' 
+                      ${isActive
+                        ? 'bg-emerald-500/30 text-emerald-300 shadow-sm'
                         : 'text-emerald-200/60 hover:text-white hover:bg-emerald-900/50'
                       }
                     `}
@@ -116,7 +114,7 @@ export default function AppLayout({
               </div>
             )}
           </div>
-          
+
           <div className={`flex ${isSidebarOpen ? 'gap-2' : 'flex-col gap-2'}`}>
             <Button
               onClick={() => setIsSidebarOpen(!isSidebarOpen)}

@@ -65,8 +65,7 @@ export default function EmployeesPage() {
   };
 
   const handleEdit = (u: User) => {
-    setFormData({ id: u.id, name: u.name, email: u.email, phone: u.phone, role: u.role, salary: u.salary });
-    setEditingId(u.id);
+    setFormData({ id: u.id, name: u.name, email: u.email, phone: u.phone, role: u.role, salary: u.salary, password: '' }); setEditingId(u.id);
     setShowForm(true);
   };
 
@@ -177,18 +176,16 @@ export default function EmployeesPage() {
           <Card key={employee.id} className="group p-5 bg-white border border-slate-200/80 rounded-2xl shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 overflow-hidden relative">
             <div className="flex items-start justify-between mb-4">
               <div className="flex items-center gap-3">
-                <div className={`w-11 h-11 rounded-xl flex items-center justify-center text-sm font-bold ${
-                  employee.role === 'admin' 
-                    ? 'bg-emerald-100 text-emerald-700' 
+                <div className={`w-11 h-11 rounded-xl flex items-center justify-center text-sm font-bold ${employee.role === 'admin'
+                    ? 'bg-emerald-100 text-emerald-700'
                     : 'bg-blue-100 text-blue-700'
-                }`}>
+                  }`}>
                   {employee.name.substring(0, 2).toUpperCase()}
                 </div>
                 <div>
                   <h3 className="font-bold text-slate-800 text-sm">{employee.name}</h3>
-                  <span className={`inline-flex items-center gap-1 text-xs font-semibold mt-0.5 ${
-                    employee.role === 'admin' ? 'text-emerald-600' : 'text-blue-600'
-                  }`}>
+                  <span className={`inline-flex items-center gap-1 text-xs font-semibold mt-0.5 ${employee.role === 'admin' ? 'text-emerald-600' : 'text-blue-600'
+                    }`}>
                     <Shield size={10} />
                     {employee.role === 'admin' ? 'Admin' : 'Nhân viên'}
                   </span>

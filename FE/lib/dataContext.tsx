@@ -98,7 +98,7 @@ const mapBEUser = (u: any): User => ({
   id: String(u.id),
   name: u.fullname || u.username,
   email: u.username.includes('@') ? u.username : `${u.username}@99billiards.com`,
-  phone: '0999.999.999',
+  phone: u.phone || '',
   role: u.role === 'admin' ? 'admin' : 'staff',
   salary: u.role === 'admin' ? 50000 : 30000,
   createdAt: u.createdAt ? new Date(u.createdAt) : new Date(),
@@ -241,7 +241,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       refreshAllData();
 
       const socket = io('http://localhost:5000');
-      
+
       socket.on('dataChange', () => {
         refreshAllData();
       });
@@ -384,7 +384,8 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
           username,
           password: user.password || '123456',
           fullname: user.name,
-          role: user.role === 'admin' ? 'admin' : 'employee'
+          role: user.role === 'admin' ? 'admin' : 'employee',
+          phone: user.phone
         })
       });
       await refreshAllData();
@@ -398,18 +399,19 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
   const updateUser = useCallback(async (user: User) => {
     try {
       const username = user.email;
-        const payload: any = {
-          username,
-          fullname: user.name,
-          role: user.role === 'admin' ? 'admin' : 'employee'
-        };
-        if (user.password) {
-          payload.password = user.password;
-        }
-        await apiRequest(`/users/${user.id}`, {
-          method: 'PUT',
-          body: JSON.stringify(payload)
-        });
+      const payload: any = {
+        username,
+        fullname: user.name,
+        role: user.role === 'admin' ? 'admin' : 'employee',
+        phone: user.phone
+      };
+      if (user.password) {
+        payload.password = user.password;
+      }
+      await apiRequest(`/users/${user.id}`, {
+        method: 'PUT',
+        body: JSON.stringify(payload)
+      });
       await refreshAllData();
     } catch (err: any) {
       console.error('updateUser error:', err);
