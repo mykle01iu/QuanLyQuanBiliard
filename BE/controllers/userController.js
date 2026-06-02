@@ -17,7 +17,7 @@ const getUsers = async (req, res) => {
 // [Admin] Thêm nhân viên
 const createUser = async (req, res) => {
   try {
-    const { username, password, fullname, role } = req.body;
+    const { username, password, fullname, role, phone } = req.body;
 
     const existingUser = await User.findOne({ where: { username } });
     if (existingUser) {
@@ -31,6 +31,7 @@ const createUser = async (req, res) => {
       username,
       password: hashedPassword,
       fullname,
+      phone,
       role: role || 'employee'
     });
 
@@ -67,7 +68,7 @@ const deleteUser = async (req, res) => {
 const updateUser = async (req, res) => {
   try {
     const { id } = req.params;
-    const { username, password, fullname, role } = req.body;
+    const { username, password, fullname, role, phone } = req.body;
 
     const user = await User.findByPk(id);
     if (!user) {
@@ -83,6 +84,7 @@ const updateUser = async (req, res) => {
     }
 
     user.fullname = fullname || user.fullname;
+    user.phone = phone !== undefined ? phone : user.phone;
     user.role = role || user.role;
 
     if (password) {
@@ -95,7 +97,7 @@ const updateUser = async (req, res) => {
     emitEvent('dataChange');
     res.status(200).json({
       message: 'Cập nhật tài khoản thành công',
-      user: { id: user.id, username: user.username, fullname: user.fullname, role: user.role }
+      user: { id: user.id, username: user.username, fullname: user.fullname, role: user.role, phone: user.phone }
     });
   } catch (error) {
     console.error('updateUser error:', error);

@@ -20,7 +20,7 @@ const mapBEUser = (beUser: any): User => {
     id: String(beUser.id),
     name: beUser.fullname || beUser.username,
     email: beUser.username.includes('@') ? beUser.username : `${beUser.username}@99billiards.com`,
-    phone: '0999.999.999',
+    phone: beUser.phone || '',
     role: beUser.role === 'admin' ? 'admin' : 'staff',
     salary: beUser.role === 'admin' ? 50000 : 30000,
     createdAt: beUser.createdAt ? new Date(beUser.createdAt) : new Date(),
