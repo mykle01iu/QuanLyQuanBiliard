@@ -15,13 +15,21 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+const normalizeBEUserRole = (role: string): User['role'] => {
+  if (role === 'admin') return 'admin';
+  if (role === 'cashier' || role === 'accountant' || role === 'manager' || role === 'employee') {
+    return role as User['role'];
+  }
+  return 'employee';
+};
+
 const mapBEUser = (beUser: any): User => {
   return {
     id: String(beUser.id),
     name: beUser.fullname || beUser.username,
     email: beUser.username.includes('@') ? beUser.username : `${beUser.username}@99billiards.com`,
     phone: beUser.phone || '',
-    role: beUser.role === 'admin' ? 'admin' : 'staff',
+    role: normalizeBEUserRole(beUser.role),
     salary: beUser.role === 'admin' ? 50000 : 30000,
     createdAt: beUser.createdAt ? new Date(beUser.createdAt) : new Date(),
   };
@@ -91,7 +99,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     login,
     logout,
     isAdmin: user?.role === 'admin',
-    isStaff: user?.role === 'staff',
+    isStaff: user?.role !== 'admin',
   };
 
   return (

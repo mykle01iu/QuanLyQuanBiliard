@@ -94,13 +94,21 @@ const mapBECategory = (c: any): Category => ({
   createdAt: c.createdAt ? new Date(c.createdAt) : new Date(),
 });
 
+const normalizeBEUserRole = (role: string): UserRole => {
+  if (role === 'admin') return 'admin';
+  if (role === 'cashier' || role === 'accountant' || role === 'manager' || role === 'employee') {
+    return role as UserRole;
+  }
+  return 'employee';
+};
+
 const mapBEUser = (u: any): User => ({
   id: String(u.id),
   name: u.fullname || u.username,
   email: u.username.includes('@') ? u.username : `${u.username}@99billiards.com`,
   phone: u.phone || '',
-  role: u.role === 'admin' ? 'admin' : 'staff',
-  salary: u.role === 'admin' ? 50000 : 30000,
+  role: normalizeBEUserRole(u.role),
+  salary: u.salary !== undefined && u.salary !== null ? Number(u.salary) : (u.role === 'admin' ? 50000 : 30000),
   createdAt: u.createdAt ? new Date(u.createdAt) : new Date(),
 });
 
@@ -385,7 +393,8 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
           password: user.password || '123456',
           fullname: user.name,
           phone: user.phone,
-          role: user.role === 'admin' ? 'admin' : 'employee'
+          role: user.role,
+          salary: user.salary
         })
       });
       await refreshAllData();
@@ -403,7 +412,8 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
         username,
         fullname: user.name,
         phone: user.phone,
-        role: user.role === 'admin' ? 'admin' : 'employee'
+        role: user.role,
+        salary: user.salary
       };
       if (user.password) {
         payload.password = user.password;

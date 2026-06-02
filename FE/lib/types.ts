@@ -1,5 +1,5 @@
 // User roles
-export type UserRole = 'admin' | 'staff';
+export type UserRole = 'admin' | 'employee' | 'cashier' | 'accountant' | 'manager';
 
 // User interface
 export interface User {

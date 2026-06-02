@@ -17,7 +17,7 @@ const getUsers = async (req, res) => {
 // [Admin] Thêm nhân viên
 const createUser = async (req, res) => {
   try {
-    const { username, password, fullname, role, phone } = req.body;
+    const { username, password, fullname, role, phone, salary } = req.body;
 
     const existingUser = await User.findOne({ where: { username } });
     if (existingUser) {
@@ -27,18 +27,23 @@ const createUser = async (req, res) => {
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
+    const resolvedRole = role || 'employee';
+    const resolvedSalary = salary !== undefined ? Number(salary) : (resolvedRole === 'admin' ? 50000 : 30000);
+
     const newUser = await User.create({
       username,
       password: hashedPassword,
       fullname,
       phone,
-      role: role || 'employee'
+      role: resolvedRole,
+      salary: resolvedSalary
     });
 
     emitEvent('dataChange');
-    res.status(201).json({ message: 'Tạo tài khoản thành công', user: { id: newUser.id, username: newUser.username } });
+    res.status(201).json({ message: 'Tạo tài khoản thành công', user: { id: newUser.id, username: newUser.username, fullname: newUser.fullname, role: newUser.role, phone: newUser.phone, salary: newUser.salary } });
   } catch (error) {
-    res.status(500).json({ message: 'Lỗi server' });
+    console.error('createUser error:', error);
+    res.status(500).json({ message: error.message || 'Lỗi server' });
   }
 };
 
@@ -68,7 +73,7 @@ const deleteUser = async (req, res) => {
 const updateUser = async (req, res) => {
   try {
     const { id } = req.params;
-    const { username, password, fullname, role, phone } = req.body;
+    const { username, password, fullname, role, phone, salary } = req.body;
 
     const user = await User.findByPk(id);
     if (!user) {
@@ -86,6 +91,7 @@ const updateUser = async (req, res) => {
     user.fullname = fullname || user.fullname;
     user.phone = phone !== undefined ? phone : user.phone;
     user.role = role || user.role;
+    user.salary = salary !== undefined ? Number(salary) : user.salary;
 
     if (password) {
       const salt = await bcrypt.genSalt(10);
@@ -97,11 +103,11 @@ const updateUser = async (req, res) => {
     emitEvent('dataChange');
     res.status(200).json({
       message: 'Cập nhật tài khoản thành công',
-      user: { id: user.id, username: user.username, fullname: user.fullname, role: user.role, phone: user.phone }
+      user: { id: user.id, username: user.username, fullname: user.fullname, role: user.role, phone: user.phone, salary: user.salary }
     });
   } catch (error) {
     console.error('updateUser error:', error);
-    res.status(500).json({ message: 'Lỗi server' });
+    res.status(500).json({ message: error.message || 'Lỗi server' });
   }
 };
 

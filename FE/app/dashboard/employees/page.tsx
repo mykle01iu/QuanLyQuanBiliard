@@ -21,11 +21,19 @@ export default function EmployeesPage() {
     name: '',
     email: '',
     phone: '',
-    role: 'staff' as UserRole,
+    role: 'cashier' as UserRole,
     salary: 50000,
     password: '',
   });
   const [editingId, setEditingId] = useState<string | null>(null);
+
+  const roleLabels: Record<UserRole, string> = {
+    admin: 'Admin',
+    employee: 'Nhân viên',
+    cashier: 'Thu Ngân',
+    accountant: 'Kế Toán',
+    manager: 'Xếp Bi',
+  };
 
   if (currentUser?.role !== 'admin') {
     return (
@@ -57,7 +65,7 @@ export default function EmployeesPage() {
         };
         await addUser(newUser);
       }
-      setFormData({ id: '', name: '', email: '', phone: '', role: 'staff', salary: 50000, password: '' });
+      setFormData({ id: '', name: '', email: '', phone: '', role: 'cashier', salary: 50000, password: '' });
       setShowForm(false);
     } catch (error) {
       // Error is already alerted in dataContext
@@ -88,7 +96,7 @@ export default function EmployeesPage() {
   };
 
   const admins = users.filter(u => u.role === 'admin');
-  const staffs = users.filter(u => u.role === 'staff');
+  const staffs = users.filter(u => u.role !== 'admin');
 
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
@@ -103,7 +111,7 @@ export default function EmployeesPage() {
             onClick={() => {
               setShowForm(true);
               setEditingId(null);
-              setFormData({ id: '', name: '', email: '', phone: '', role: 'staff', salary: 50000, password: '' });
+              setFormData({ id: '', name: '', email: '', phone: '', role: 'cashier', salary: 50000, password: '' });
             }}
             className="bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl h-10 px-5 font-semibold shadow-sm"
           >
@@ -148,7 +156,10 @@ export default function EmployeesPage() {
                   onChange={(e) => setFormData({ ...formData, role: e.target.value as UserRole })}
                   className="w-full h-11 border border-slate-200 rounded-xl px-4 bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all text-sm"
                 >
-                  <option value="staff">Nhân viên</option>
+                  <option value="cashier">Thu Ngân</option>
+                  <option value="accountant">Kế Toán</option>
+                  <option value="manager">Xếp Bi</option>
+                  <option value="employee">Nhân viên</option>
                   <option value="admin">Admin</option>
                 </select>
               </div>
@@ -177,20 +188,18 @@ export default function EmployeesPage() {
           <Card key={employee.id} className="group p-5 bg-white border border-slate-200/80 rounded-2xl shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 overflow-hidden relative">
             <div className="flex items-start justify-between mb-4">
               <div className="flex items-center gap-3">
-                <div className={`w-11 h-11 rounded-xl flex items-center justify-center text-sm font-bold ${
-                  employee.role === 'admin' 
-                    ? 'bg-emerald-100 text-emerald-700' 
+                <div className={`w-11 h-11 rounded-xl flex items-center justify-center text-sm font-bold ${employee.role === 'admin'
+                    ? 'bg-emerald-100 text-emerald-700'
                     : 'bg-blue-100 text-blue-700'
-                }`}>
+                  }`}>
                   {employee.name.substring(0, 2).toUpperCase()}
                 </div>
                 <div>
                   <h3 className="font-bold text-slate-800 text-sm">{employee.name}</h3>
-                  <span className={`inline-flex items-center gap-1 text-xs font-semibold mt-0.5 ${
-                    employee.role === 'admin' ? 'text-emerald-600' : 'text-blue-600'
-                  }`}>
+                  <span className={`inline-flex items-center gap-1 text-xs font-semibold mt-0.5 ${employee.role === 'admin' ? 'text-emerald-600' : 'text-blue-600'
+                    }`}>
                     <Shield size={10} />
-                    {employee.role === 'admin' ? 'Admin' : 'Nhân viên'}
+                    {roleLabels[employee.role]}
                   </span>
                 </div>
               </div>
