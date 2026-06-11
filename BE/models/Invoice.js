@@ -38,7 +38,7 @@ const Invoice = sequelize.define('Invoice', {
     defaultValue: 0
   },
   status: {
-    type: DataTypes.ENUM('Đang chơi', 'Đã thanh toán'),
+    type: DataTypes.STRING(50),
     defaultValue: 'Đang chơi'
   }
 }, {
