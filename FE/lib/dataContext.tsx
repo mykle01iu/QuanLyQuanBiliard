@@ -240,7 +240,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
     if (user) {
       refreshAllData();
 
-      const socketUrl = process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') || 'http://localhost:5000';
+      const socketUrl = process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') || 'https://billiards-be.onrender.com';
       const socket = io(socketUrl);
 
       socket.on('dataChange', () => {

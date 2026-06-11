@@ -4,6 +4,7 @@ import { Analytics } from '@vercel/analytics/next'
 import './globals.css'
 import { AuthProvider } from '@/lib/authContext'
 import { DataProvider } from '@/lib/dataContext'
+import NotificationBlocker from '@/components/NotificationBlocker'
 
 const _geist = Geist({ subsets: ["latin"] });
 const _geistMono = Geist_Mono({ subsets: ["latin"] });
@@ -39,6 +40,7 @@ export default function RootLayout({
   return (
     <html lang="vi">
       <body className="font-sans antialiased">
+        <NotificationBlocker />
         <AuthProvider>
           <DataProvider>
             {children}
